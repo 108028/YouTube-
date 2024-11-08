@@ -37,6 +37,7 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            margin: 5px;
         }
         button:hover {
             background-color: #cc0000;
@@ -55,8 +56,8 @@
 
 <div class="container">
     <h2>YouTube 影片預覽工具</h2>
-    <p>輸入影片 ID 及時間格式 (ID_min_s)</p>
-    <input type="text" id="videoInput" placeholder="例如：yCU-WjFQilQ_1_30">
+    <p>輸入影片 URL 或 ID 及可選時間格式</p>
+    <input type="text" id="videoInput" placeholder="例如：https://www.youtube.com/watch?v=vGAn-7aXQXU 或 vGAn-7aXQXU_1_30">
     <button onclick="loadYouTubeVideo()">預覽影片</button>
 </div>
 
@@ -69,20 +70,32 @@
 
 <script>
 function loadYouTubeVideo() {
-    const input = document.getElementById("videoInput").value;
-    const parts = input.split("_");
+    const input = document.getElementById("videoInput").value.trim();
+    let videoId = "";
+    let startTime = 0;
 
-    if (parts.length === 3) {
-        const videoId = parts[0];
-        const minutes = parseInt(parts[1], 10);
-        const seconds = parseInt(parts[2], 10);
-        const startTime = (minutes * 60) + seconds;
-
-        const videoSrc = `https://www.youtube.com/embed/${videoId}?start=${startTime}`;
-        document.getElementById("videoFrame").src = videoSrc;
+    // 處理格式，提取 ID 與時間
+    if (input.includes("watch?v=")) {
+        // 使用 YouTube URL，提取 ID
+        const urlParts = input.split("watch?v=");
+        videoId = urlParts[1].split("_")[0];
     } else {
-        alert("請輸入正確的格式，例如：yCU-WjFQilQ_1_30");
+        // 直接使用 ID 或 ID_min_s 格式
+        const parts = input.split("_");
+        videoId = parts[0];
+        if (parts.length === 3) {
+            const minutes = parseInt(parts[1], 10) || 0;
+            const seconds = parseInt(parts[2], 10) || 0;
+            startTime = (minutes * 60) + seconds;
+        }
     }
+
+    // 構建 `iframe` 的網址
+    let videoSrc = `https://www.youtube.com/embed/${videoId}`;
+    if (startTime > 0) {
+        videoSrc += `?start=${startTime}`;
+    }
+    document.getElementById("videoFrame").src = videoSrc;
 }
 </script>
 
