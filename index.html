@@ -50,15 +50,22 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        .message {
+            color: green;
+            font-size: 14px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>YouTube 影片預覽工具</h2>
-    <p>輸入影片 URL 或 ID 及可選時間格式</p>
+    <p>輸入影片 URL 或 ID 及可選時間格式 (ID_min_s 或 URL_min_s)</p>
     <input type="text" id="videoInput" placeholder="例如：https://www.youtube.com/watch?v=vGAn-7aXQXU 或 vGAn-7aXQXU_1_30">
     <button onclick="loadYouTubeVideo()">預覽影片</button>
+    <button onclick="copyVideoId()">複製 ID</button>
+    <div id="copyMessage" class="message"></div>
 </div>
 
 <iframe id="videoFrame" 
@@ -69,6 +76,8 @@
 </iframe>
 
 <script>
+let currentVideoId = "";  // 儲存目前的影片 ID
+
 function loadYouTubeVideo() {
     const input = document.getElementById("videoInput").value.trim();
     let videoId = "";
@@ -90,12 +99,27 @@ function loadYouTubeVideo() {
         }
     }
 
-    // 構建 `iframe` 的網址
+    currentVideoId = videoId;  // 更新當前的影片 ID
     let videoSrc = `https://www.youtube.com/embed/${videoId}`;
     if (startTime > 0) {
         videoSrc += `?start=${startTime}`;
     }
     document.getElementById("videoFrame").src = videoSrc;
+}
+
+function copyVideoId() {
+    if (currentVideoId) {
+        navigator.clipboard.writeText(currentVideoId).then(() => {
+            document.getElementById("copyMessage").textContent = "影片 ID 已複製！";
+            setTimeout(() => {
+                document.getElementById("copyMessage").textContent = "";
+            }, 2000);
+        }).catch(err => {
+            document.getElementById("copyMessage").textContent = "複製失敗，請重試。";
+        });
+    } else {
+        document.getElementById("copyMessage").textContent = "請先載入影片以取得 ID。";
+    }
 }
 </script>
 
